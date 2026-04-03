@@ -56,7 +56,17 @@ def plot_alignment_to_numpy(alignment, info=None):
     plt.tight_layout()
 
     fig.canvas.draw()
-    data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-    data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-    plt.close()
+    # data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+    # data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    # plt.close()
+    # return data
+    # Use buffer_rgba instead of tostring_rgb
+    buf = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8)
+    w, h = fig.canvas.get_width_height()
+    buf = buf.reshape((h, w, 4))  # RGBA
+
+    # Drop alpha channel, and maintain RGBA
+    data = buf[:, :, :3]
+
+    plt.close(fig)
     return data

@@ -969,11 +969,15 @@ def main():
     training_args.num_train_epochs = math.ceil(training_args.max_steps / num_update_steps_per_epoch)
 
     # hack to be able to train on multiple device
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        model.discriminator.save_pretrained(tmpdirname)
-        discriminator = VitsDiscriminator.from_pretrained(tmpdirname)
-        for disc in discriminator.discriminators:
-            disc.apply_weight_norm()
+    # with tempfile.TemporaryDirectory() as tmpdirname:
+    #     model.discriminator.save_pretrained(tmpdirname)
+    #     discriminator = VitsDiscriminator.from_pretrained(tmpdirname)
+    #     for disc in discriminator.discriminators:
+    #         disc.apply_weight_norm()
+    # del model.discriminator
+    discriminator = copy.deepcopy(model.discriminator)
+    for disc in discriminator.discriminators:
+        disc.apply_weight_norm()
     del model.discriminator
 
     # init gen_optimizer, gen_lr_scheduler, disc_optimizer, dics_lr_scheduler

@@ -1846,6 +1846,9 @@ class VitsModel(VitsPreTrainedModel):
 class VitsDiscriminator(VitsPreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
+        
+        # Ensure compliance with HuggingFace pretrained model expectation
+        self.all_tied_weights_keys = getattr(self, "_tied_weights_keys", {})
 
         if config.discriminator_scale_channels is not None:
             self.discriminators = nn.ModuleList(

@@ -38,7 +38,8 @@ def convert_checkpoint(
         checkpoint_path = hf_hub_download(repo_id="facebook/mms-tts", subfolder=f"full_models/{language_code}", filename="D_100000.pth")
         generator_checkpoint_path = f"facebook/mms-tts-{language_code}"
     
-    config = VitsConfig.from_pretrained(generator_checkpoint_path)
+    config = VitsConfig.from_pretrained(generator_checkpoint_path,
+                                        pad_token_id=0)
     generator = VitsModel.from_pretrained(generator_checkpoint_path)
 
     discriminator = VitsDiscriminator(config)

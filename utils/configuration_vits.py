@@ -256,6 +256,7 @@ class VitsConfig(PretrainedConfig):
         self.noise_scale = noise_scale
         self.noise_scale_duration = noise_scale_duration
         self.sampling_rate = sampling_rate
+        self.pad_token_id = kwargs.get("pad_token_id", 0)
 
         # used for training
         self.discriminator_kernel_size = discriminator_kernel_size

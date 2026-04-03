@@ -16,6 +16,7 @@ import numpy as np
 import torch
 import os
 from pathlib import Path
+import copy
 
 from accelerate import Accelerator, DistributedDataParallelKwargs
 from accelerate.utils import ProjectConfiguration, is_wandb_available, set_seed

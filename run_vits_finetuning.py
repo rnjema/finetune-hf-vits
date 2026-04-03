@@ -885,7 +885,7 @@ def main():
     # inspired from https://github.com/huggingface/diffusers/blob/main/examples/text_to_image/train_text_to_image.py
     # and https://github.com/huggingface/community-events/blob/main/huggan/pytorch/cyclegan/train.py
 
-    logging_dir = os.path.join(training_args.output_dir, getattr(training_args,"logging_dir","logs"))
+    logging_dir = os.path.join(training_args.output_dir, getattr(training_args,'logging_dir','logs'))
     accelerator_project_config = ProjectConfiguration(project_dir=training_args.output_dir, logging_dir=logging_dir)
 
     accelerator = Accelerator(

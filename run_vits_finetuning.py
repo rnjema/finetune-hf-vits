@@ -922,7 +922,7 @@ def main():
         )
         train_dataloader = torch.utils.data.DataLoader(
             train_dataset,
-            shuffle=not training_args.group_by_length,
+            shuffle=training_args.train_sampling_strategy != 'group_by_length',
             collate_fn=data_collator,
             batch_size=training_args.per_device_train_batch_size,
             num_workers=training_args.dataloader_num_workers,

@@ -886,7 +886,7 @@ def main():
     # inspired from https://github.com/huggingface/diffusers/blob/main/examples/text_to_image/train_text_to_image.py
     # and https://github.com/huggingface/community-events/blob/main/huggan/pytorch/cyclegan/train.py
 
-    logging_dir = Path(getattr(training_args, "output_dir",".")) / getattr(training_args,'logging_dir','logs')
+    logging_dir = Path(getattr(training_args, "output_dir",".")) / (getattr(training_args,"logging_dir",None) or "logs")
     accelerator_project_config = ProjectConfiguration(project_dir=training_args.output_dir, logging_dir=str(logging_dir))
 
     accelerator = Accelerator(
@@ -917,7 +917,7 @@ def main():
                 dataset=train_dataset,
                 lengths=train_dataset["tokens_input_length"],
             )
-            if training_args.group_by_length
+            if training_args.train_sampling_strategy == 'group_by_length'
             else None
         )
         train_dataloader = torch.utils.data.DataLoader(
@@ -937,7 +937,7 @@ def main():
                 dataset=eval_dataset,
                 lengths=eval_dataset["tokens_input_length"],
             )
-            if training_args.group_by_length
+            if training_args.train_sampling_strategy == 'group_by_length'
             else None
         )
 

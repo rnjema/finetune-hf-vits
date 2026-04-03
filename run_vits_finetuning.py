@@ -293,6 +293,21 @@ class DataTrainingArguments:
         },
     )
 
+# Custom arguments
+
+@dataclass
+class CustomArguments:
+    overwrite_output_dir: bool = field(
+        default=False,
+        metadata={"help": "Overwrite the output directory"}
+    )
+    wandb_project: str = field(
+        default=None,
+        metadata={"help": "Weights & Biases project name"}
+    )
+
+
+
 # DATA COLLATOR
 
 
@@ -526,7 +541,7 @@ def main():
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, VITSTrainingArguments))
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, VITSTrainingArguments, CustomArguments))
 
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
         # If we pass only one argument to the script and it's the path to a json file,
@@ -537,7 +552,7 @@ def main():
 
     # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
     # information sent is the one passed as arguments along with your Python/PyTorch versions.
-    send_example_telemetry("run_vits_finetuning", model_args, data_args)
+    # send_example_telemetry("run_vits_finetuning", model_args, data_args)
 
     # 2. Setup logging
     logging.basicConfig(

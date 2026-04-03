@@ -15,6 +15,7 @@ import datasets
 import numpy as np
 import torch
 import os
+from pathlib import Path
 
 from accelerate import Accelerator, DistributedDataParallelKwargs
 from accelerate.utils import ProjectConfiguration, is_wandb_available, set_seed
@@ -885,8 +886,8 @@ def main():
     # inspired from https://github.com/huggingface/diffusers/blob/main/examples/text_to_image/train_text_to_image.py
     # and https://github.com/huggingface/community-events/blob/main/huggan/pytorch/cyclegan/train.py
 
-    logging_dir = os.path.join(getattr(training_args, "output_dir","."), getattr(training_args,'logging_dir','logs'))
-    accelerator_project_config = ProjectConfiguration(project_dir=training_args.output_dir, logging_dir=logging_dir)
+    logging_dir = Path(getattr(training_args, "output_dir",".")) / getattr(training_args,'logging_dir','logs')
+    accelerator_project_config = ProjectConfiguration(project_dir=training_args.output_dir, logging_dir=str(logging_dir))
 
     accelerator = Accelerator(
         gradient_accumulation_steps=training_args.gradient_accumulation_steps,

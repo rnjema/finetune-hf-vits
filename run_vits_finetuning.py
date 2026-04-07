@@ -938,7 +938,7 @@ def main():
                 dataset=eval_dataset,
                 lengths=eval_dataset["tokens_input_length"],
             )
-            if training_args.train_sampling_strategy == 'group_by_length'
+            if training_args.group_by_length
             else None
         )
 

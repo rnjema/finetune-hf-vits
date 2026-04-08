@@ -918,12 +918,12 @@ def main():
                 dataset=train_dataset,
                 lengths=train_dataset["tokens_input_length"],
             )
-            if training_args.group_by_length
+            if training_args.train_sampling_strategy == "group_by_length"
             else None
         )
         train_dataloader = torch.utils.data.DataLoader(
             train_dataset,
-            shuffle=not training_args.group_by_length,
+            shuffle=training_args.train_sampling_strategy != "group_by_length",
             collate_fn=data_collator,
             batch_size=training_args.per_device_train_batch_size,
             num_workers=training_args.dataloader_num_workers,
@@ -938,7 +938,7 @@ def main():
                 dataset=eval_dataset,
                 lengths=eval_dataset["tokens_input_length"],
             )
-            if training_args.group_by_length
+            if training_args.train_sampling_strategy == "group_by_length"
             else None
         )
 

@@ -706,8 +706,7 @@ def main():
     if custom_args.duration_predictor_dropout is not None:
         config.duration_predictor_dropout = custom_args.duration_predictor_dropout
     
-    logger.info(f"Updated config with custom dropouts: activation={config.activation_dropout}, 
-                            attention={config.attention_dropout}, hidden={config.hidden_dropout}, duration_predictor={config.duration_predictor_dropout}")
+    logger.info(f"Updated config with custom dropouts: activation={config.activation_dropout}, attention={config.attention_dropout}, hidden={config.hidden_dropout}, duration_predictor={config.duration_predictor_dropout}")
 
     feature_extractor = VitsFeatureExtractor.from_pretrained(
         model_args.feature_extractor_name if model_args.feature_extractor_name else model_args.model_name_or_path,

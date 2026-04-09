@@ -1434,7 +1434,7 @@ def main():
                         if patience_counter >= training_args.early_stopping_patience:
                             logger.info("Early stopping triggered. Ending training.")
                             accelerator.end_training()
-                            return  # exit main() early
+                            break  # exit main() early
                     # ========== END EARLY STOPPING ==========
 
                 accelerator.wait_for_everyone()

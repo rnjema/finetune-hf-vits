@@ -1437,12 +1437,12 @@ def main():
                             unwrapped_model.discriminator = unwrapped_disc
                             
                             # Remove weight norms for saving
-                            for disc in unwrapped_model.discriminator.discriminators:
-                                disc.remove_weight_norm()
-                            unwrapped_model.decoder.remove_weight_norm()
-                            for flow in unwrapped_model.flow.flows:
-                                torch.nn.utils.remove_weight_norm(flow.conv_pre)
-                                torch.nn.utils.remove_weight_norm(flow.conv_post)
+                            # for disc in unwrapped_model.discriminator.discriminators:
+                            #     disc.remove_weight_norm()
+                            # unwrapped_model.decoder.remove_weight_norm()
+                            # for flow in unwrapped_model.flow.flows:
+                            #     torch.nn.utils.remove_weight_norm(flow.conv_pre)
+                            #     torch.nn.utils.remove_weight_norm(flow.conv_post)
                             unwrapped_model.save_pretrained(best_model_path)
                             tokenizer.save_pretrained(best_model_path)
                             feature_extractor.save_pretrained(best_model_path)

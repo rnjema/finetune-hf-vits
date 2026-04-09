@@ -321,6 +321,27 @@ class CustomArguments:
         default=None,
         metadata={"help": "Weights & Biases run name (display name)"}
     )
+    freeze_text_encoder: bool = field(
+        default=False,
+        metadata={"help": "If True, freeze the text encoder parameters during training."}
+    )
+    # Dropout overrides
+    activation_dropout: float = field(
+        default=None,
+        metadata={"help": "Override activation dropout in model config"}
+    )
+    attention_dropout: float = field(
+        default=None,
+        metadata={"help": "Override attention dropout in model config"}
+    )
+    hidden_dropout: float = field(
+        default=None,
+        metadata={"help": "Override hidden dropout in model config"}
+    )
+    duration_predictor_dropout: float = field(
+        default=None,
+        metadata={"help": "Override duration predictor dropout in model config"}
+    )
     
 
 
@@ -674,6 +695,19 @@ def main():
     )
     
     config.pad_token_id = 0
+
+    # Override dropout values if provided in custom_args
+    if custom_args.activation_dropout is not None:
+        config.activation_dropout = custom_args.activation_dropout
+    if custom_args.attention_dropout is not None:
+        config.attention_dropout = custom_args.attention_dropout
+    if custom_args.hidden_dropout is not None:
+        config.hidden_dropout = custom_args.hidden_dropout
+    if custom_args.duration_predictor_dropout is not None:
+        config.duration_predictor_dropout = custom_args.duration_predictor_dropout
+    
+    logger.info(f"Updated config with custom dropouts: activation={config.activation_dropout}, 
+                            attention={config.attention_dropout}, hidden={config.hidden_dropout}, duration_predictor={config.duration_predictor_dropout}")
 
     feature_extractor = VitsFeatureExtractor.from_pretrained(
         model_args.feature_extractor_name if model_args.feature_extractor_name else model_args.model_name_or_path,

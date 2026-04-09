@@ -314,9 +314,14 @@ class CustomArguments:
         metadata={"help": "Overwrite the output directory"}
     )
     wandb_project: str = field(
-        default=None,
+        default="tts-finetuning",
         metadata={"help": "Weights & Biases project name"}
     )
+    wandb_run_name: str = field(
+        default=None,
+        metadata={"help": "Weights & Biases run name (display name)"}
+    )
+    
 
 
 
@@ -1063,7 +1068,20 @@ def main():
     # The trackers initializes automatically on the main process.
     if accelerator.is_main_process:
         tracker_config = training_args.to_sanitized_dict()
-        accelerator.init_trackers(project_name, tracker_config)
+        
+        project_name_final = custom_args.wandb_project if custom_args.wandb_project else project_name
+        
+        # Prepare wandb init kwargs to set custom run name
+        init_kwargs = {}
+        if custom_args.wandb_run_name:
+            init_kwargs["wandb"] = {"name": custom_args.wandb_run_name}
+        
+        accelerator.init_trackers(
+            project_name_final,
+            tracker_config,
+            init_kwargs=init_kwargs if init_kwargs else None
+        )
+        
 
     # Train!
     logger.info("***** Running training *****")
@@ -1242,6 +1260,9 @@ def main():
                 ) = train_losses
                 progress_bar.update(1)
                 global_step += 1
+                
+                current_epoch_float = epoch + (step + 1) / len(train_dataloader)
+                
                 accelerator.log(
                     {
                         "train_summed_losses": train_summed_losses,
@@ -1254,6 +1275,8 @@ def main():
                         "train_loss_fmaps": train_loss_fmaps,
                         "train_loss_gen": train_loss_gen,
                         "lr": disc_lr_scheduler.get_last_lr()[0],
+                        "epoch": current_epoch_float,
+                        "step": global_step,
                     },
                     step=global_step,
                 )

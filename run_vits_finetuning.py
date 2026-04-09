@@ -1427,14 +1427,42 @@ def main():
                         best_eval_loss = current_eval_loss
                         patience_counter = 0
                         logger.info(f"New best eval loss: {best_eval_loss:.6f}")
-                        # Optionally save a "best_model" checkpoint here if desired
+                        # Save the best model checkpoint
+                        if accelerator.is_main_process:
+                            best_model_path = os.path.join(training_args.output_dir, "best_model")
+                            
+                            # Save the unwrapped model
+                            unwrapped_model = accelerator.unwrap_model(model)
+                            unwrapped_disc = accelerator.unwrap_model(discriminator)
+                            unwrapped_model.discriminator = unwrapped_disc
+                            
+                            # Remove weight norms for saving
+                            for disc in unwrapped_model.discriminator.discriminators:
+                                disc.remove_weight_norm()
+                            unwrapped_model.decoder.remove_weight_norm()
+                            for flow in unwrapped_model.flow.flows:
+                                torch.nn.utils.remove_weight_norm(flow.conv_pre)
+                                torch.nn.utils.remove_weight_norm(flow.conv_post)
+                            unwrapped_model.save_pretrained(best_model_path)
+                            tokenizer.save_pretrained(best_model_path)
+                            feature_extractor.save_pretrained(best_model_path)
+                            logger.info(f"Best model saved to {best_model_path}")
                     else:
                         patience_counter += 1
                         logger.info(f"No improvement. Patience: {patience_counter}/{training_args.early_stopping_patience}")
                         if patience_counter >= training_args.early_stopping_patience:
-                            logger.info("Early stopping triggered. Ending training.")
+                            logger.info("Early stopping triggered. Pushing best model to Hub.")
+                            if accelerator.is_main_process:
+                                best_model_path = os.path.join(training_args.output_dir, "best_model")
+                                if os.path.exists(best_model_path):
+                                    VitsModel.from_pretrained(best_model_path).push_to_hub(training_args.hub_model_id)
+                                    AutoTokenizer.from_pretrained(best_model_path).push_to_hub(training_args.hub_model_id)
+                                    VitsFeatureExtractor.from_pretrained(best_model_path).push_to_hub(training_args.hub_model_id)
+                                else:
+                                    logger.warning("Best model not found, pushing last model.")
+                                    # fallback to final saving code
                             accelerator.end_training()
-                            break  # exit main() early
+                            return
                     # ========== END EARLY STOPPING ==========
 
                 accelerator.wait_for_everyone()

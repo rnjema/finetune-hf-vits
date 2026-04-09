@@ -153,6 +153,16 @@ class VITSTrainingArguments(TrainingArguments):
 
     weight_fmaps: float = field(default=1.0, metadata={"help": "Feature map loss weight"})
 
+    # ========== EARLY STOPPING ARGUMENTS ==========
+    early_stopping_patience: int = field(
+        default=3,
+        metadata={"help": "Number of evaluation steps with no improvement after which training will stop."}
+    )
+    early_stopping_threshold: float = field(
+        default=0.001,
+        metadata={"help": "Minimum change in the monitored metric to qualify as an improvement."}
+    )
+
 
 @dataclass
 class DataTrainingArguments:
@@ -1102,6 +1112,10 @@ def main():
         disable=not accelerator.is_local_main_process,
     )
 
+    # ========== EARLY STOPPING INITIALIZATION ==========
+    best_eval_loss = float("inf")
+    patience_counter = 0
+
     for epoch in range(first_epoch, training_args.num_train_epochs):
         # keep track of train losses
         train_losses = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -1382,6 +1396,23 @@ def main():
                     )
 
                     logger.info("Validation finished... ")
+
+                    # ========== EARLY STOPPING CHECK ==========
+                    # Use val_loss_mel_kl as the primary metric (sum of mel and kl losses)
+                    current_eval_loss = val_losses.get("val_loss_mel_kl", val_losses.get("val_loss_mel", float("inf")))
+                    if current_eval_loss < best_eval_loss - training_args.early_stopping_threshold:
+                        best_eval_loss = current_eval_loss
+                        patience_counter = 0
+                        logger.info(f"New best eval loss: {best_eval_loss:.6f}")
+                        # Optionally save a "best_model" checkpoint here if desired
+                    else:
+                        patience_counter += 1
+                        logger.info(f"No improvement. Patience: {patience_counter}/{training_args.early_stopping_patience}")
+                        if patience_counter >= training_args.early_stopping_patience:
+                            logger.info("Early stopping triggered. Ending training.")
+                            accelerator.end_training()
+                            return  # exit main() early
+                    # ========== END EARLY STOPPING ==========
 
                 accelerator.wait_for_everyone()
 

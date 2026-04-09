@@ -877,6 +877,14 @@ def main():
         trust_remote_code=model_args.trust_remote_code,
     )
 
+    # Conditionally freeze text encoder
+    if custom_args.freeze_text_encoder:
+        for param in model.text_encoder.parameters():
+            param.requires_grad = False
+        logger.info("Text encoder frozen (parameters will not be updated).")
+    else:
+        logger.info("Text encoder trainable.")
+
     
     with training_args.main_process_first(desc="apply_weight_norm"):
         # apply weight norms
